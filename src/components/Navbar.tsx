@@ -5,16 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import Logout from "./Logout";
-import {auth} from "auth";
 
 
 function Navbar() {
   const {data: seesion}=  useSession()
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
-  }, []);
-
+  
  
 
   const toggleMenu = () => {
