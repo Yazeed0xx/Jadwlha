@@ -7,14 +7,17 @@ import Image from 'next/image';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import GoogleSignup from './GoogleSignup';
+import { FcGoogle } from "react-icons/fc";
 
 function Login() {
     const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstname, setFirstname] = useState('')
   const [error, setError] = useState(""); 
   const router = useRouter()
   const [showModal, setShowModal] = useState<boolean>(false);
 
+  const [isGoogleLogin, setIsGoogleLogin] = useState(false); // New state for Google login
 
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -33,12 +36,13 @@ function Login() {
         redirect: false,
         email,
         password,
+        
       });
 
       
   
       if (res && !res.error) {
-        router.replace('/');
+       router.replace('/');
       } else {
         setError("Invalid credentials");
         setShowModal(true)
@@ -48,6 +52,20 @@ function Login() {
       setError("An unexpected error occurred");
     }
   };
+  // const handleGoogleLogin = async () => {
+  //   setIsGoogleLogin(!isGoogleLogin); // Indicate Google login is in process
+  //   const result = await signIn('google', { callbackUrl: '/' });
+
+  //   if (result && !result.error) {
+  //     router.replace('/');
+  //   } else {
+  //     setError("Google login failed");
+  //     setShowModal(true);
+  //   }
+
+  //   setIsGoogleLogin(false); // Reset Google login state
+  // };
+
 
   const closeModal = () => {
     setShowModal(false);
@@ -117,7 +135,7 @@ function Login() {
                   >
                     تسجيل دخول
                   </button>
-                  <div><GoogleSignup></GoogleSignup></div>
+                  {/* <div><FcGoogle /></div> */}
                   
                   
                   <p className="text-center p-3 text-black">

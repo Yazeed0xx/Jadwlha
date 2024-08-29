@@ -32,7 +32,9 @@ function Navbar() {
             >
         <Logout/>
         </button>
+        <p>{seesion.user?.email}</p>
         <p>{seesion.user?.name}</p>
+
         
         </>
              

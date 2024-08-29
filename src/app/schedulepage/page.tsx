@@ -1,8 +1,9 @@
+import Google from '@/components/Google'
 import React from 'react'
 
 function schedule() {
   return (
-    <div>schedule</div>
+    <div><Google/></div>
   )
 }
 

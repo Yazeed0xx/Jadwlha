@@ -17,13 +17,17 @@ const authOptions: AuthOptions = {
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
+        firstname: {label:"Firstname", type:"text"}
       },
       async authorize(credentials) {
-        const { email, password } = credentials;
+        const { email, password,firstname} = credentials;
 
         try {
           await connectMongoDB();
           const user = await User.findOne({ email });
+          const userName = await User.findOne({ firstname });
+
+
 
           if (!user) {
             console.log("No user found with this email.");
@@ -36,7 +40,10 @@ const authOptions: AuthOptions = {
             console.log("Password is incorrect.");
             return null;
           }
-
+          if (!userName) {
+            console.log("Password is incorrect.");
+            return null;
+          }
           return user;
         } catch (error) {
           console.error("Error during authentication:", error);

@@ -1,13 +1,15 @@
 import { signIn } from 'next-auth/react';
 import React from 'react';
+import { FcGoogle } from "react-icons/fc";
 
-function GoogleSignup() {
+function  GoogleSignup() {
+
   return (
     <div>
-      <h1>Google Signup</h1>
-      <div>
+      <div className='flex justify-center '>
       <button onClick={() => signIn('google', { callbackUrl: '/' })}>
-          Login with Google
+        <FcGoogle size={50}/>
+
         </button>      </div>
     </div>
   );

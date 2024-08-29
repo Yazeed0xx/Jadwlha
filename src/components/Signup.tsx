@@ -10,6 +10,7 @@ import logo from "../../public/logo-jadw.png";
 import { User } from "@/types/Types";
 import { Router } from "next/router";
 import { useRouter } from "next/navigation";
+import { json } from "stream/consumers";
 
 function Signup() {
   const router = useRouter()
@@ -26,7 +27,6 @@ function Signup() {
   // const ref = useRef<HTMLFormElement>(null);
 
 
-  // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -39,10 +39,8 @@ function Signup() {
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Trim user input
    
 
-    // Check if all fields are filled
     // if (!user.firstname || !user.email || !user.lastname || !user.password || !user.phone) {
     //     setError("All fields are required");
     //     setShowModal(true);
@@ -61,6 +59,9 @@ function Signup() {
       const { user2 } = resUserExists.data;
     
       if (user2) {
+
+      
+        
         setError("User already exists");
         setShowModal(true);
         return;
@@ -80,8 +81,17 @@ function Signup() {
           phone: user.phone
       }, );
 
-        // If the request is successful, reset the form
         if (res.status === 200 || res.status === 201) {
+          await fetch("/api/emails", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: user.email,
+              firstname: user.firstname,
+            }),
+          });
           const form = e.target as HTMLFormElement;
           form.reset();
           router.push('/login')

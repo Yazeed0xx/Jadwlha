@@ -381,7 +381,7 @@ input:focus {
   font-size: 14px;
 }
 a {
-  text-decoration-line: line-through;
+  /* text-decoration-line: line-through; */
 }
 
 .scroll-container::-webkit-scrollbar {
