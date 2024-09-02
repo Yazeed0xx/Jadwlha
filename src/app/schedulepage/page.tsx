@@ -1,9 +1,20 @@
-import Google from '@/components/Google'
-import React from 'react'
+'use client'
+import React, { useState } from 'react'
+import dynamic from 'next/dynamic';
+import UserForm from '@/components/Form';
+
+const Google = dynamic(() => import('../../components/Google'), { ssr: false });
+
 
 function schedule() {
+  
   return (
-    <div><Google/></div>
+    <>    
+    <div>
+    {/* <UserForm onSubmit={handleFormSubmit} /> */}
+    </div>
+    <div><Google /></div>
+</>
   )
 }
 
