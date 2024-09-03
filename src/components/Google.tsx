@@ -6,6 +6,7 @@ import Loder from './Loder';
 
 const libraries: ("places")[] = ["places"];
 
+
 interface Location {
   address: string;
   position: { lat: number; lng: number };
@@ -18,11 +19,10 @@ interface Task {
   routeDetails?: {
     bestTime: Date;
     bestRoute: string;
-    distance: string ;
+    distance: string;
     duration: string;
     day: string;
   };
-  //its optinal dont change it
   departureTime?: Date;
   arrivalTime?: Date;
 }
@@ -33,7 +33,7 @@ interface BusyTime {
 }
 
 const center = {
-  lat: 24.7136, 
+  lat: 24.7136,
   lng: 46.6753,
 };
 
@@ -56,7 +56,6 @@ const Google: React.FC = () => {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP as string,
     libraries: libraries,
   });
-
   const mapRef = useRef<google.maps.Map>();
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
@@ -87,7 +86,7 @@ const Google: React.FC = () => {
       // handlet for thehome location or current task
       const geocoder = new google.maps.Geocoder();
       geocoder.geocode({ location: clickedPosition }, (results, status) => {
-        if (status === "OK" && results[0]) {
+        if (status === "OK" && results && results[0]) {
           if (isSettingHome) {
             setHomeLocation({
               address: results[0].formatted_address,
@@ -140,12 +139,12 @@ const Google: React.FC = () => {
       toast.error("Please set your home location first");
       return;
     }
-  
+
     if (taskList.length === 0) {
       toast.error("Please add tasks before scheduling");
       return;
     }
-  
+
     const directionsService = new google.maps.DirectionsService();
     
     const isTimeBusy = (time: Date) => {
@@ -173,20 +172,20 @@ const Google: React.FC = () => {
   
     const scheduledTasks: Task[] = [];
     const now = new Date();
-  
+
     for (const task of taskList) {
       let bestDeparture: { departureTime: Date; arrivalTime: Date; totalDurationInTraffic: number; distance: string; duration: string; bestRouteName: string } | null = null;
-  
+
       for (let day = 0; day < 7; day++) {
         for (let hour = 0; hour < 24; hour++) {
           const departureTime = new Date(now.getTime());
           departureTime.setDate(now.getDate() + day);
           departureTime.setHours(hour, 0, 0, 0);
-  
+
           const deadline = new Date(task.deadline);
           if (departureTime > deadline) continue;
           if (isTimeBusy(departureTime)) continue;
-  
+
           try {
             const result = await new Promise<google.maps.DirectionsResult>((resolve, reject) => {
               directionsService.route(
@@ -200,7 +199,7 @@ const Google: React.FC = () => {
                   },
                 },
                 (result, status) => {
-                  if (status === google.maps.DirectionsStatus.OK) {
+                  if (status === google.maps.DirectionsStatus.OK && result) {
                     resolve(result);
                   } else {
                     reject(status);
@@ -208,14 +207,14 @@ const Google: React.FC = () => {
                 }
               );
             });
-  
+
             const route = result.routes[0];
             const totalDurationInTraffic = route.legs.reduce(
               (total, leg) => total + (leg.duration_in_traffic?.value || 0),
               0
             );
             const arrivalTime = new Date(departureTime.getTime() + totalDurationInTraffic * 1000);
-  
+
             if (
               !bestDeparture ||
               totalDurationInTraffic < bestDeparture.totalDurationInTraffic
@@ -224,8 +223,8 @@ const Google: React.FC = () => {
                 departureTime,
                 arrivalTime,
                 totalDurationInTraffic,
-                distance: route.legs[0].distance.text,
-                duration: route.legs[0].duration.text,
+                distance: route.legs[0].distance?.text || "",
+                duration: route.legs[0].duration?.text || "",
                 bestRouteName: route.summary,
               };
             }
@@ -234,8 +233,8 @@ const Google: React.FC = () => {
           }
         }
       }
-  
-      if (bestDeparture && !isOverlap(bestDeparture, scheduledTasks)) {
+
+      if (bestDeparture && !isOverlap(bestDeparture, scheduledTasks.filter((t): t is Task & Required<Pick<Task, 'arrivalTime' | 'departureTime'>> => t.arrivalTime !== undefined && t.departureTime !== undefined))) {
         scheduledTasks.push({
           ...task,
           routeDetails: {
@@ -250,33 +249,34 @@ const Google: React.FC = () => {
         });
       }
     }
-  
+
     setTaskList(scheduledTasks);
-  
+
     if (directionsRenderer) {
       directionsRenderer.setMap(null);
     }
-  
-    //  show directions on the map
+
+    // show directions on the map
     scheduledTasks.forEach(task => {
       const request: google.maps.DirectionsRequest = {
         origin: homeLocation.address,
         destination: task.address,
         travelMode: google.maps.TravelMode.DRIVING,
-        optimizeWaypoints: false, 
+        optimizeWaypoints: false,
       };
-  
+
       directionsService.route(request, (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK) {
+        if (status === google.maps.DirectionsStatus.OK && result) {
           const renderer = new google.maps.DirectionsRenderer();
-          renderer.setMap(mapRef.current);
+          renderer.setMap(mapRef.current || null);
           renderer.setDirections(result);
         }
       });
     });
-  
+
     toast.success("Tasks scheduled successfully!");
   }, [taskList, busyTimes, homeLocation, directionsRenderer]);
+
   // edit and delete handler
   const handleDeleteTask = (index: number) => {
     const newTaskList = [...taskList];
