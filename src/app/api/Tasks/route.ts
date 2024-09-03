@@ -36,7 +36,7 @@ export async function GET(req: Request) {
   
   
 
-export const methods = ['POST','GET'];  // Only allow POST requests
+export const methods = ['POST','GET'];  
      
 
 
