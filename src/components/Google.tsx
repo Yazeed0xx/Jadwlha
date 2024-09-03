@@ -12,7 +12,6 @@ import "react-toastify/dist/ReactToastify.css";
 import Loder from './Loder';
 import axios from 'axios';
 import ScheduleModal from './ScheduleModal';
-import Sidebar from './Sidebar';
 import logo from '../../public/lan-fp.png'
 import Image from 'next/image';
 import Link from 'next/link';

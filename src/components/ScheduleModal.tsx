@@ -9,7 +9,6 @@ import { toast } from 'react-toastify';
 
 export default function ScheduleModal({ taskList, isOpen, onClose }) {
 
-  // Function to save tasks to the database
   const saveTasksToDatabase = async (scheduledTasks) => {
     try {
       const response = await fetch('/api/Tasks', {
@@ -32,7 +31,6 @@ export default function ScheduleModal({ taskList, isOpen, onClose }) {
     }
   };
 
-  // Function to handle saving tasks
   const handleSaveTasks = async () => {
     await saveTasksToDatabase(taskList);
   };

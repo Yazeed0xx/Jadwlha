@@ -130,7 +130,7 @@ function Signup() {
                   </label>
                   <input
                     type="text"
-                    name="firstname" // Ensure the name attribute is set
+                    name="firstname" 
                     className="w-full pl-4 pr-3 py-2 rounded-lg border-2 border-black-200 outline-none focus:border-[#FFA842]"
                     placeholder="Ali"
                     value={user.firstname}
@@ -158,7 +158,7 @@ function Signup() {
                   </label>
                   <input
                     type="email"
-                    name="email" // Ensure the name attribute is set
+                    name="email" 
                     className="w-full pl-4 pr-3 py-2 rounded-lg border-2 border-black-200 outline-none focus:border-[#FFA842]"
                     placeholder="ali@gmail.com"
                     value={user.email}
@@ -173,7 +173,7 @@ function Signup() {
                   </label>
                   <input
                     type="password"
-                    name="password" // Ensure the name attribute is set
+                    name="password" 
                     className="w-full pl-4 pr-3 py-2 rounded-lg border-2 border-black-200 outline-none focus:border-[#FFA842]"
                     placeholder="************"
                     value={user.password}
@@ -188,7 +188,7 @@ function Signup() {
                   </label>
                   <input
                     type="tel"
-                    name="phone" // Ensure the name attribute is set
+                    name="phone" 
                     className="w-full pl-4 pr-3 py-2 rounded-lg border-2 border-black-200 outline-none focus:border-[#FFA842]"
                     placeholder="123-456-7890"
                     value={user.phone}

@@ -12,9 +12,9 @@ function Profile() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await fetch('/api/Tasks'); // Adjust this endpoint if needed
+        const response = await fetch('/api/Tasks'); 
         const data = await response.json();
-        setTasks(data.tasks || []); // Ensure `tasks` is set
+        setTasks(data.tasks || []); 
       } catch (error) {
         console.error('Error fetching tasks:', error);
       }
