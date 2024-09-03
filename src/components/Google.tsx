@@ -1,8 +1,22 @@
 'use client'
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, Autocomplete, DirectionsRenderer } from '@react-google-maps/api';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import "react-toastify/dist/ReactToastify.css";
+
 import Loder from './Loder';
+import axios from 'axios';
+import ScheduleModal from './ScheduleModal';
+import Sidebar from './Sidebar';
+import logo from '../../public/lan-fp.png'
+import Image from 'next/image';
+import Link from 'next/link';
+
 
 const libraries: ("places")[] = ["places"];
 
@@ -43,6 +57,8 @@ const Google: React.FC = () => {
   const [homeLocation, setHomeLocation] = useState<Location | null>(null);
   const [isSettingHome, setIsSettingHome] = useState(false);
   const [taskList, setTaskList] = useState<Task[]>([]);
+  const [newBusyTime, setNewBusyTime] = useState<BusyTime>({ start: '', end: '' });
+
   const [currentTask, setCurrentTask] = useState<Task>({
     address: '',
     deadline: '',
@@ -50,6 +66,7 @@ const Google: React.FC = () => {
   });
   const [busyTimes, setBusyTimes] = useState<BusyTime[]>([]);
   const [directionsRenderer, setDirectionsRenderer] = useState<google.maps.DirectionsRenderer | null>(null);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -130,21 +147,43 @@ const Google: React.FC = () => {
     }
   };
 
-  const handleAddBusyTime = (newBusyTime: BusyTime) => {
-    setBusyTimes([...busyTimes, newBusyTime]);
+  const handleAddBusyTime = () => {
+    if (newBusyTime.start && newBusyTime.end) {
+      setBusyTimes([...busyTimes, newBusyTime]);
+      setNewBusyTime({ start: '', end: '' });
+      toast.success("Busy time added successfully!");
+    } else {
+      toast.error("Please set both start and end times");
+    }
   };
+
+  const handleNewBusyTimeChange = (field: 'start' | 'end', value: string) => {
+    setNewBusyTime({ ...newBusyTime, [field]: value });
+  };
+ 
+
 
   const calculateBestTime = useCallback(async () => {
     if (!homeLocation) {
       toast.error("Please set your home location first");
       return;
+
+      
+
+
     }
+     
+     
+
+    
 
     if (taskList.length === 0) {
       toast.error("Please add tasks before scheduling");
       return;
+
     }
 
+   
     const directionsService = new google.maps.DirectionsService();
     
     const isTimeBusy = (time: Date) => {
@@ -249,13 +288,24 @@ const Google: React.FC = () => {
         });
       }
     }
+    // if (scheduledTasks.length > 0) {
+    //   setTaskList(scheduledTasks);
+    //   await saveTasksToDatabase(scheduledTasks);}
 
     setTaskList(scheduledTasks);
+    setIsScheduleModalOpen(true);
+
+
 
     if (directionsRenderer) {
       directionsRenderer.setMap(null);
     }
 
+    
+    
+    
+     
+    
     // show directions on the map
     scheduledTasks.forEach(task => {
       const request: google.maps.DirectionsRequest = {
@@ -276,6 +326,8 @@ const Google: React.FC = () => {
 
     toast.success("Tasks scheduled successfully!");
   }, [taskList, busyTimes, homeLocation, directionsRenderer]);
+
+  
 
   // edit and delete handler
   const handleDeleteTask = (index: number) => {
@@ -309,159 +361,136 @@ const Google: React.FC = () => {
   if (!isLoaded) return <div><Loder/></div>;
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex-grow flex">
-        <div className="w-2/3 h-full">
-          <GoogleMap
-            mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={homeLocation?.position || center}
-            zoom={10}
-            onLoad={onMapLoad}
-            onClick={handleMapClick}
-          >
-            {markers.map((marker, index) => (
-              <Marker
-                key={index}
-                position={{ lat: marker.getPosition()!.lat(), lng: marker.getPosition()!.lng() }}
-              />
-            ))}
-            {homeLocation && (
-              <Marker
-                position={homeLocation.position}
-                icon={{
-                  url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-                }}
-              />
-            )}
-          </GoogleMap>
-        </div>
-        <div className="w-1/3 p-4 overflow-y-auto">
-          <button
-            onClick={handleSetHomeClick}
-            className="mb-4 bg-green-500 text-white p-2 rounded"
-          >
-            Set Home Location
-          </button>
+    <>
+   
+  
+  
+    <div className="flex flex-row-reverse h-screen overflow-hidden  ">
+      <div className="w-svw h-full ">
+      <GoogleMap
+          mapContainerStyle={{ width: '100%', height: '100%' }}
+          center={homeLocation?.position || center}
+          zoom={10}
+          onLoad={onMapLoad}
+          onClick={handleMapClick}
+        >
+          {markers.map((marker, index) => (
+            <Marker
+              key={index}
+              position={{ lat: marker.getPosition()!.lat(), lng: marker.getPosition()!.lng() }}
+            />
+          ))}
           {homeLocation && (
-            <div className="mb-4">
-              <h3 className="font-bold">Home Location:</h3>
+            <Marker
+              position={homeLocation.position}
+              icon={{
+                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+              }}
+            />
+          )}
+        </GoogleMap>
+      </div>
+      <Card className="w-1/3 h-full overflow-y-scroll">
+        <CardHeader>
+          <CardTitle>
+            <Link href='/'><Image src={logo} alt='' width={90}/>
+            </Link>
+            
+            </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Button onClick={handleSetHomeClick} className="w-full bg-[#9685CF]">
+            Set Home Location
+          </Button>
+          {homeLocation && (
+            <div>
+              <h3 className="font-semibold">Home Location:</h3>
               <p>{homeLocation.address}</p>
             </div>
           )}
-          <form onSubmit={(e) => { e.preventDefault(); handleAddTask(); }}>
-            <div className="mb-4">
-              <Autocomplete>
-                <input
-                  type="text"
-                  name="address"
-                  value={currentTask.address}
-                  onChange={handleTaskInputChange}
-                  placeholder="Enter task location"
-                  className="w-full p-2 border rounded"
-                />
-              </Autocomplete>
-            </div>
-            <div className="mb-4">
-              <input
-                type="datetime-local"
-                name="deadline"
-                value={currentTask.deadline}
+          <Separator />
+          <form onSubmit={(e) => { e.preventDefault(); handleAddTask(); }} className="space-y-4">
+            <Autocomplete>
+              <Input
+                type="text"
+                name="address"
+                value={currentTask.address}
                 onChange={handleTaskInputChange}
-                className="w-full p-2 border rounded"
+                placeholder="Enter task location"
               />
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white p-2 rounded"
-            >
-              Add Task
-            </button>
+            </Autocomplete>
+            <Input
+              type="datetime-local"
+              name="deadline"
+              value={currentTask.deadline}
+              onChange={handleTaskInputChange}
+            />
+            <Button type="submit" className="w-full bg-[#9685CF] ">Add Task</Button>
           </form>
-          <div className="mt-4">
-        <h3 className="font-bold text-lg mb-2">Tasks:</h3>
-        <ul className="space-y-2">
-          {taskList.map((task, index) => (
-            <li key={index} className="flex items-center justify-between bg-gray-100 p-2 rounded">
-              <span>{task.address} - {new Date(task.deadline).toLocaleString()}</span>
-              <button
-                onClick={() => handleDeleteTask(index)}
-                className="bg-red-500 text-white p-1 rounded hover:bg-red-600"
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="mt-4">
-        <h3 className="font-bold text-lg mb-2">Busy Times:</h3>
-        <ul className="space-y-2">
-          {busyTimes.map((busyTime, index) => (
-            <li key={index} className="flex items-center space-x-2 bg-gray-100 p-2 rounded">
-              <input
-                type="time"
-                value={busyTime.start}
-                onChange={(e) => handleEditBusyTime(index, 'start', e.target.value)}
-                className="p-1 border rounded"
-              />
-              <span>-</span>
-              <input
-                type="time"
-                value={busyTime.end}
-                onChange={(e) => handleEditBusyTime(index, 'end', e.target.value)}
-                className="p-1 border rounded"
-              />
-              <button
-                onClick={() => handleDeleteBusyTime(index)}
-                className="bg-red-500 text-white p-1 rounded hover:bg-red-600"
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-2">
-          <input
-            type="time"
-            onChange={(e) => handleAddBusyTime({ start: e.target.value, end: '' })}
-            className="w-full p-2 border rounded mt-2"
-          />
-        </div>
-      </div>
-        </div>
-      </div>
-      <button className='btn bg-red-400' onClick={calculateBestTime}>calculateRoute</button>
-      <div className="mt-4">
-        <h3 className="font-bold text-lg mb-2">Scheduled Tasks:</h3>
-        <ul className="space-y-4">
-          {taskList.map((task, index) => (
-            <li key={index} className="bg-white shadow-md rounded-lg p-4">
-              <h4 className="font-semibold text-lg mb-2">{task.address}</h4>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <span className="font-medium">Departure:</span> {task.departureTime?.toLocaleString()}
-                </div>
-                <div>
-                  <span className="font-medium">Arrival:</span> {task.arrivalTime?.toLocaleString()}
-                </div>
-                <div>
-                  <span className="font-medium">Route:</span> {task.routeDetails?.bestRoute}
-                </div>
-                <div>
-                  <span className="font-medium">Distance:</span> {task.routeDetails?.distance}
-                </div>
-                <div>
-                  <span className="font-medium">Duration:</span> {task.routeDetails?.duration}
-                </div>
-                <div>
-                  <span className="font-medium">Day:</span> {task.routeDetails?.day}
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+          <Separator />
+          <div>
+            <h3 className="font-semibold mb-2">Tasks:</h3>
+            <ScrollArea className="h-40">
+              <ul className="space-y-2">
+                {taskList.map((task, index) => (
+                  <li key={index} className="flex items-center justify-between bg-secondary p-2 rounded">
+                    <span>{task.address} - {new Date(task.deadline).toLocaleString()}</span>
+                    <Button variant="destructive" size="sm" onClick={() => handleDeleteTask(index)}>
+                      Delete
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </div>
+          <Separator />
+          <div>
+          <h3 className="font-semibold mb-2">Busy Time:</h3>
+  <div className="flex items-center space-x-2">
+    <Input
+      type="time"
+      value={newBusyTime.start}
+      onChange={(e) => handleNewBusyTimeChange('start', e.target.value)}
+      className="w-24"
+    />
+    <span>-</span>
+    <Input
+      type="time"
+      value={newBusyTime.end}
+      onChange={(e) => handleNewBusyTimeChange('end', e.target.value)}
+      className="w-24"
+    />
+    <Button className='bg-[#9685CF]' onClick={handleAddBusyTime}>Add</Button>
+  </div>
+  <ScrollArea className="h-40 mt-2">
+    <ul className="space-y-2">
+      {busyTimes.map((busyTime, index) => (
+        <li key={index} className="flex items-center justify-between bg-secondary p-2 rounded">
+          <span>{busyTime.start} - {busyTime.end}</span>
+          <Button variant="destructive" size="sm" onClick={() => handleDeleteBusyTime(index)}>
+            Delete
+          </Button>
+        </li>
+      ))}
+    </ul>
+  </ScrollArea>
+            
+          </div>
+          <Separator />
+          <Button onClick={calculateBestTime} className="w-full bg-[#9685CF]">Calculate Route</Button>
+        </CardContent>
+      </Card>
+      <ToastContainer />
+
+      <ScheduleModal
+        taskList={taskList}
+        onClose={() => setIsScheduleModalOpen(false)}
+        isOpen={isScheduleModalOpen}
+      />
     </div>
+  
+
+    </>
   );
 };
 
