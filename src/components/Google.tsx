@@ -18,7 +18,7 @@ interface Task {
   routeDetails?: {
     bestTime: Date;
     bestRoute: string;
-    distance: string;
+    distance: string ;
     duration: string;
     day: string;
   };

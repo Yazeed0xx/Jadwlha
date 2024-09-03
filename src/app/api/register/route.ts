@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
             );
         } else {
             return NextResponse.json(
-                { message: "Error during registration", error: error.message },
+                { message: "Error during registration", error: (error as Error).message },
                 { status: 500 }
             );
         }

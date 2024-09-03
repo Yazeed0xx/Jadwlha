@@ -11,42 +11,46 @@ const authOptions: AuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
-
     CredentialsProvider({
-      name: "Credentials",
+      name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
-        firstname: {label:"Firstname", type:"text"}
+        email: { label: 'Email', type: 'text' },
+        password: { label: 'Password', type: 'password' },
+        firstname: { label: 'Firstname', type: 'text' },
       },
       async authorize(credentials) {
-        const { email, password,firstname} = credentials;
+        if (!credentials) {
+          console.log('No credentials provided.');
+          return null;
+        }
+
+        const { email, password, firstname } = credentials;
 
         try {
           await connectMongoDB();
           const user = await User.findOne({ email });
-          const userName = await User.findOne({ firstname });
-
-
+          const userByName = await User.findOne({ firstname });
 
           if (!user) {
-            console.log("No user found with this email.");
+            console.log('No user found with this email.');
+            return null;
+          }
+
+          if (!userByName) {
+            console.log('No user found with this firstname.');
             return null;
           }
 
           const checkPass = await bcrypt.compare(password, user.password);
 
           if (!checkPass) {
-            console.log("Password is incorrect.");
+            console.log('Password is incorrect.');
             return null;
           }
-          if (!userName) {
-            console.log("Password is incorrect.");
-            return null;
-          }
+
           return user;
         } catch (error) {
-          console.error("Error during authentication:", error);
+          console.error('Error authorizing user:', error);
           return null;
         }
       },
