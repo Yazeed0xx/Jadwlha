@@ -52,19 +52,19 @@ function Login() {
       setError("An unexpected error occurred");
     }
   };
-  // const handleGoogleLogin = async () => {
-  //   setIsGoogleLogin(!isGoogleLogin); // Indicate Google login is in process
-  //   const result = await signIn('google', { callbackUrl: '/' });
+  const handleGoogleLogin = async () => {
+    setIsGoogleLogin(!isGoogleLogin); // Indicate Google login is in process
+    const result = await signIn('google', { callbackUrl: '/' });
 
-  //   if (result && !result.error) {
-  //     router.replace('/');
-  //   } else {
-  //     setError("Google login failed");
-  //     setShowModal(true);
-  //   }
+    if (result && !result.error) {
+      router.replace('/');
+    } else {
+      setError("Google login failed");
+      setShowModal(true);
+    }
 
-  //   setIsGoogleLogin(false); // Reset Google login state
-  // };
+    setIsGoogleLogin(false); // Reset Google login state
+  };
 
 
   const closeModal = () => {
@@ -135,7 +135,7 @@ function Login() {
                   >
                     تسجيل دخول
                   </button>
-                  {/* <div><FcGoogle /></div> */}
+                  <div onClick={handleGoogleLogin}><FcGoogle /></div>
                   
                   
                   <p className="text-center p-3 text-black">

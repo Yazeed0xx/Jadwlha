@@ -68,20 +68,20 @@ export default function ScheduleModal({ taskList, isOpen, onClose }) {
 
   return (
     <Dialog open={isOpen} >
-      <DialogContent  className="sm:max-w-[80%]">
+      <DialogContent  className="">
         <DialogHeader >
           <DialogTitle>تفاصيل الجدول</DialogTitle>
         </DialogHeader>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Address</TableHead>
-              <TableHead>Deadline</TableHead>
-              <TableHead>Best Time Departure</TableHead>
-              <TableHead>Best Route</TableHead>
-              <TableHead>Distance</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Day</TableHead>
+              <TableHead>عنوان وجهتك</TableHead>
+              <TableHead>اخر موعد لجدولة الرحله</TableHead>
+              <TableHead>افضل وقت للخروج</TableHead>
+              <TableHead>افضل طريق</TableHead>
+              <TableHead>المسافه</TableHead>
+              <TableHead>المده الزمنيه</TableHead>
+              <TableHead>اليوم</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -101,7 +101,7 @@ export default function ScheduleModal({ taskList, isOpen, onClose }) {
         <DialogFooter className="sm:justify-start">
           <Button variant="outline" onClick={handleSaveTasks}>
             <Save className="mr-2 h-4 w-4" />
-            Save
+            حفظ في الجدول في الملف الشخصي
           </Button>
           <Button variant="outline" onClick={handleDownloadPDF}>
             <FileText className="mr-2 h-4 w-4" />
@@ -109,7 +109,7 @@ export default function ScheduleModal({ taskList, isOpen, onClose }) {
           </Button>
           <Button onClick={onClose} variant="outline">
             <X   className="mr-2 h-4 w-4" />
-            Close
+            اغلق
           </Button>
         </DialogFooter>
       </DialogContent>

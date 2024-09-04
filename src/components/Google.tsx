@@ -109,7 +109,7 @@ const Google: React.FC = () => {
               position: clickedPosition,
             });
             setIsSettingHome(false);
-            toast.success("Home location set successfully!");
+            toast.success("تم تحديد منزلك !");
           } else {
             setCurrentTask({
               ...currentTask,
@@ -124,7 +124,7 @@ const Google: React.FC = () => {
 
   const handleSetHomeClick = () => {
     setIsSettingHome(true);
-    toast.info("Click on the map to set your home location");
+    toast.info("حدد منزلك او نقطة الانطلاق من الخريطه");
   };
 
   const handleTaskInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,9 +140,9 @@ const Google: React.FC = () => {
         deadline: '',
         position: { lat: 0, lng: 0 },
       });
-      toast.success("Task added successfully!");
+      toast.success("تمت اضافة المهمه بنجاح");
     } else {
-      toast.error("all task detils are requierd ");
+      toast.error("تاكد من ادخالك كل البيانات اللي نحتاجها عشان مشوارك ");
     }
   };
 
@@ -150,9 +150,9 @@ const Google: React.FC = () => {
     if (newBusyTime.start && newBusyTime.end) {
       setBusyTimes([...busyTimes, newBusyTime]);
       setNewBusyTime({ start: '', end: '' });
-      toast.success("Busy time added successfully!");
+      toast.success("تم اضافة الاوقات المشغوله بنجاح!");
     } else {
-      toast.error("Please set both start and end times");
+      toast.error("ياليت تحدد بدايه الوقت المشغول فيه ونهايته");
     }
   };
 
@@ -164,7 +164,7 @@ const Google: React.FC = () => {
 
   const calculateBestTime = useCallback(async () => {
     if (!homeLocation) {
-      toast.error("Please set your home location first");
+      toast.error("من فضلك حدد موقع منزلك او المكان اللي حاب تنطلق منه");
       return;
 
       
@@ -177,7 +177,7 @@ const Google: React.FC = () => {
     
 
     if (taskList.length === 0) {
-      toast.error("Please add tasks before scheduling");
+      toast.error("من فضلك اضف مهام عشان نجدول نجدولها");
       return;
 
     }
@@ -323,7 +323,7 @@ const Google: React.FC = () => {
       });
     });
 
-    toast.success("Tasks scheduled successfully!");
+    toast.success("تمت جدولة مشاوريك بنجاح!");
   }, [taskList, busyTimes, homeLocation, directionsRenderer]);
 
   
@@ -333,7 +333,7 @@ const Google: React.FC = () => {
     const newTaskList = [...taskList];
     newTaskList.splice(index, 1);
     setTaskList(newTaskList);
-    toast.success("Task deleted successfully!");
+    toast.success("تم حذف المهمه!");
   };
 
   
@@ -346,7 +346,7 @@ const Google: React.FC = () => {
     const newBusyTimes = [...busyTimes];
     newBusyTimes.splice(index, 1);
     setBusyTimes(newBusyTimes);
-    toast.success("Busy time deleted successfully!");
+    toast.success("تم حذف الوقت !");
   };
 
   useEffect(() => {
@@ -389,9 +389,9 @@ const Google: React.FC = () => {
           )}
         </GoogleMap>
       </div>
-      <Card className="w-1/3 h-full overflow-y-scroll">
+      <Card className="w-1/3 h-full overflow-y-scroll md:w-96 max-sm:w-screen ">
         <CardHeader>
-          <CardTitle>
+          <CardTitle className='flex justify-center'>
             <Link href='/'><Image src={logo} alt='' width={90}/>
             </Link>
             
@@ -399,11 +399,11 @@ const Google: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           <Button onClick={handleSetHomeClick} className="w-full bg-[#9685CF]">
-            Set Home Location
+            حدد موقع منزلك
           </Button>
           {homeLocation && (
             <div>
-              <h3 className="font-semibold">Home Location:</h3>
+              <h3 className="font-semibold">موقع المنزل</h3>
               <p>{homeLocation.address}</p>
             </div>
           )}
@@ -415,7 +415,7 @@ const Google: React.FC = () => {
                 name="address"
                 value={currentTask.address}
                 onChange={handleTaskInputChange}
-                placeholder="Enter task location"
+                placeholder="ادخل وجهتك من هنا او باستخدام الخريطه"
               />
             </Autocomplete>
             <Input
@@ -424,18 +424,18 @@ const Google: React.FC = () => {
               value={currentTask.deadline}
               onChange={handleTaskInputChange}
             />
-            <Button type="submit" className="w-full bg-[#9685CF] ">Add Task</Button>
+            <Button type="submit" className="w-full bg-[#9685CF] ">اضف مهمه</Button>
           </form>
           <Separator />
           <div>
-            <h3 className="font-semibold mb-2">Tasks:</h3>
+            <h3 className="font-semibold mb-2">المهام المضافه:</h3>
             <ScrollArea className="h-40">
               <ul className="space-y-2">
                 {taskList.map((task, index) => (
                   <li key={index} className="flex items-center justify-between bg-secondary p-2 rounded">
                     <span>{task.address} - {new Date(task.deadline).toLocaleString()}</span>
                     <Button variant="destructive" size="sm" onClick={() => handleDeleteTask(index)}>
-                      Delete
+                      حذف
                     </Button>
                   </li>
                 ))}
@@ -443,9 +443,9 @@ const Google: React.FC = () => {
             </ScrollArea>
           </div>
           <Separator />
-          <div>
-          <h3 className="font-semibold mb-2">Busy Time:</h3>
-  <div className="flex items-center space-x-2">
+          <div className='max-sm:w-27 border '>
+          <h3 className="font-semibold mb-2">حدد الاوقات التي لاتريد الجدوله فيها:</h3>
+  <div className="flex flex-col items-center space-x-2  ">
     <Input
       type="time"
       value={newBusyTime.start}
@@ -459,7 +459,7 @@ const Google: React.FC = () => {
       onChange={(e) => handleNewBusyTimeChange('end', e.target.value)}
       className="w-24"
     />
-    <Button className='bg-[#9685CF]' onClick={handleAddBusyTime}>Add</Button>
+    <Button className='bg-[#9685CF]' onClick={handleAddBusyTime}>اضافه</Button>
   </div>
   <ScrollArea className="h-40 mt-2">
     <ul className="space-y-2">
@@ -467,7 +467,7 @@ const Google: React.FC = () => {
         <li key={index} className="flex items-center justify-between bg-secondary p-2 rounded">
           <span>{busyTime.start} - {busyTime.end}</span>
           <Button variant="destructive" size="sm" onClick={() => handleDeleteBusyTime(index)}>
-            Delete
+            احذف
           </Button>
         </li>
       ))}
@@ -476,7 +476,7 @@ const Google: React.FC = () => {
             
           </div>
           <Separator />
-          <Button onClick={calculateBestTime} className="w-full bg-[#9685CF]">Calculate Route</Button>
+          <Button onClick={calculateBestTime} className="w-full bg-[#9685CF]">جدول مشاويرك</Button>
         </CardContent>
       </Card>
       <ToastContainer />

@@ -32,8 +32,11 @@ function Navbar() {
             >
         <Logout/>
         </button>
-        <p>{seesion.user?.email}</p>
-        <p>{seesion.user?.name}</p>
+        <Link href='/profile' ><button
+              className="py-2 px-3 ml-3  text-2xl bg-[#FFA842] text-white rounded-lg transition duration-300"
+            >ملفك الشخصي</button></Link>
+        
+        
 
         
         </>

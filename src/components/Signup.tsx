@@ -111,9 +111,9 @@ function Signup() {
     <div className="w-full min-h-screen bg-gray-100 flex items-center justify-center px-5 py-5 bg-black-100">
       <div className="bg-white text-black-500 overflow-hidden w-[60vw] max-sm:w-full">
         <div className="md:flex w-full">
-          <div className="md:block w-[50vw] max-sm:hidden bg-[#9685CF] py-10 px-10">
+          <div className="md:block w-[60vw] bg-[#9685CF] py-10 px-10 max-sm:w-full max-sm:py-1  ">
             <Link href="/">
-              <Image src={logo} alt="logo" className="mt-20" />
+              <Image src={logo} alt="logo" className="mt-20 " />
             </Link>
           </div>
           <div className="w-full py-10 px-5 md:px-10 max-sm:p-0">

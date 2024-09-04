@@ -4,10 +4,12 @@ import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import logo from "../../public/logo-jadw.png";
+import { useSession } from "next-auth/react";
 
 function Profile() {
   const [tasks, setTasks] = useState([]);
   const [showSchedule, setShowSchedule] = useState(false);
+  const {data: seesion}=  useSession()
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -26,14 +28,14 @@ function Profile() {
   return (
     <div className="profile text-right">
       <div className="contentProfile">
-        <div className="flex justify-center w-[80vw] mr-56 mt-[17vh] max-sm:mr-2 ">
-          <div className="sidebar w-[20%] h-[54vh] flex-shrink-0 max-sm:mt-28">
+        <div className="flex justify-center w-[70vw] mr-56 mt-[17vh] max-sm:mr-2 ">
+          <div className=" bg-[#9685cf] w-[30%] h-[54vh] flex-shrink-0 max-sm:mt-0 max-sm:w-[90%] max-sm:flex-col ">
             <Link href="/">
-              <Image src={logo} className="h-48 mr-[4.6vw] max-sm:hidden" alt="Logo" />
+              <Image src={logo} className="h-48 max-sm:mr-24 max-sm:w-60   " alt="Logo" />
             </Link>
-            <ul className="sidebar-menu">
+            <ul className="sidebar-menu max-sm:mr-28">
               <div className="box sidebar-item text-[16px] flex mb-[10px]">
-                <li className="mb-[10px] text-center m-[auto] flex justify-between text-black">
+                <li className="mb-[10px] text-center m-[auto] flex justify-between text-2xl  text-white">
                   <Link href="#">البيانات الشخصية</Link>
                 </li>
                 <span className="ml-[30px] mt-[-5px] text-gray-800">
@@ -41,7 +43,7 @@ function Profile() {
                 </span>
               </div>
               <div className="box sidebar-item text-[16px] flex mb-[10px]" onClick={() => setShowSchedule(!showSchedule)}>
-                <li className="mb-[0px] text-center m-[auto] flex justify-between text-black">
+                <li className="mb-[0px] text-center m-[auto] flex justify-between  text-2xl  text-white">
                   جدولك
                 </li>
                 <span className="ml-[30px] mt-[-5px] text-gray-800">
@@ -50,7 +52,7 @@ function Profile() {
               </div>
               <Link href="/schedulepage">
                 <div className="box sidebar-item text-[16px] flex mb-[10px]">
-                  <li className="mb-[3px] text-center m-[auto] flex justify-between text-black">
+                  <li className="mb-[3px] text-center m-[auto] flex justify-between text-2xl  text-white">
                     الخريطة
                   </li>
                   <span className="ml-[30px] mt-[-5px] text-gray-800">
@@ -59,7 +61,7 @@ function Profile() {
                 </div>
               </Link>
               <div className="box sidebar-item text-[16px] flex mb-[10px]" onClick={() => localStorage.clear()}>
-                <li className="mb-[10px] text-center m-[auto] flex justify-between text-gray-800">
+                <li className="mb-[10px] text-center m-[auto] flex justify-between text-2xl  text-white">
                   تسجيل خروج
                 </li>
                 <span className="ml-[30px] mt-[-5px] text-gray-800">
@@ -104,7 +106,8 @@ function Profile() {
                     <p>لا توجد مهام</p>
                   )}
                 </div>
-              ) : (
+              ) : ( 
+
                 <div className="flex flex-col items-center mb-6">
                   <div className="profile-pic bg-gray-200 rounded-full w-24 h-24 flex items-center justify-center text-3xl text-white">
                   </div>
@@ -118,10 +121,12 @@ function Profile() {
                       </label>
                       <input
                         type="text"
+                        value={seesion?.user?.name}
                         name="firstName"
                         className="field w-full p-2 border border-gray-300 rounded-[3px]"
                         readOnly
                       />
+                      
                     </div>
                     <div className="box max-sm:w-full">
                       <label htmlFor="lastName" className="block text-gray-600 mb-[5px]">
@@ -140,6 +145,7 @@ function Profile() {
                       </label>
                       <input
                         type="email"
+                        value={seesion?.user?.email}
                         name="email"
                         className="field w-full p-2 border border-gray-300 rounded-[3px]"
                         readOnly
@@ -164,7 +170,7 @@ function Profile() {
         </div>
       </div>
       {/* start mobile */}
-      <div className="mobileSidebar max-lg:hidden max-sm:ml-9">
+      {/* <div className="mobileSidebar max-lg:hidden max-sm:ml-9">
         <div className="flex justify-between">
           <Link href="/">
             <span>
@@ -190,7 +196,7 @@ function Profile() {
             </span>
           </Link>
         </div>
-      </div>
+      </div> */}
       {/* end mobile */}
     </div>
   );
