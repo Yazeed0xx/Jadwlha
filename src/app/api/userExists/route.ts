@@ -10,7 +10,6 @@ export async function POST(req: NextRequest) {
 
     const user2 = await User.findOne({ email }).select("_id");
 
-    console.log("User:", user2); 
     
     return NextResponse.json({ user2 });
   } catch (error) {

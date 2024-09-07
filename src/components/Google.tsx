@@ -15,35 +15,13 @@ import ScheduleModal from './ScheduleModal';
 import logo from '../../public/lan-fp.png'
 import Image from 'next/image';
 import Link from 'next/link';
+import { Location, Task, ScheduledTask, BusyTime } from '@/types/Types';
 
 
 const libraries: ("places")[] = ["places"];
 
 
-interface Location {
-  address: string;
-  position: { lat: number; lng: number };
-}
 
-interface Task {
-  address: string;
-  deadline: string;
-  position: { lat: number; lng: number };
-  routeDetails?: {
-    bestTime: Date;
-    bestRoute: string;
-    distance: string;
-    duration: string;
-    day: string;
-  };
-  departureTime?: Date;
-  arrivalTime?: Date;
-}
-
-interface BusyTime {
-  start: string;
-  end: string;
-}
 
 const center = {
   lat: 24.7136,
@@ -87,7 +65,6 @@ const Google: React.FC = () => {
 
       markers.forEach(marker => marker.setMap(null));
 
-      // Add new marker
       const newMarker = new google.maps.Marker({
         position: clickedPosition,
         map: mapRef.current,
@@ -99,7 +76,6 @@ const Google: React.FC = () => {
 
  
 
-      // handlet for thehome location or current task
       const geocoder = new google.maps.Geocoder();
       geocoder.geocode({ location: clickedPosition }, (results, status) => {
         if (status === "OK" && results && results[0]) {
@@ -461,7 +437,7 @@ const Google: React.FC = () => {
     />
     <Button className='bg-[#9685CF]' onClick={handleAddBusyTime}>اضافه</Button>
   </div>
-  <ScrollArea className="h-40 mt-2">
+  <ScrollArea className="h-27 w-10 mt-2">
     <ul className="space-y-2">
       {busyTimes.map((busyTime, index) => (
         <li key={index} className="flex items-center justify-between bg-secondary p-2 rounded">

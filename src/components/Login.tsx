@@ -8,68 +8,90 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import GoogleSignup from './GoogleSignup';
 import { FcGoogle } from "react-icons/fc";
+import { loginval, LoginvalType } from '@/types/Types';
+import { object, z } from 'zod';
+import { useMutation } from 'react-query';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 
 function Login() {
-    const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstname, setFirstname] = useState('')
+  const router = useRouter();
   const [error, setError] = useState(""); 
-  const router = useRouter()
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [isGoogleLogin, setIsGoogleLogin] = useState(false);
 
-  const [isGoogleLogin, setIsGoogleLogin] = useState(false); // New state for Google login
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginvalType>({
+    resolver: zodResolver(loginval),
+  });
 
-
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!email|| !password){
-      setError('ALl fileds Reqiurd')
-      setShowModal(true)
-      return 
-
-      
-    }
- 
-    try {
-      const res = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
-        
+  const loginMutation = useMutation(
+    async (data: { email: string; password: string }) => {
+      const res = await fetch("/api/auth/signin/credentials", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          redirect: false, 
+          email: data.email,
+          password: data.password,
+        }),
       });
-
-      
   
-      if (res && !res.error) {
-       router.replace('/');
-      } else {
-        setError("Invalid credentials");
-        setShowModal(true)
-      }
-    } catch (error) {
-      console.log(error);
-      setError("An unexpected error occurred");
-    }
-  };
-  const handleGoogleLogin = async () => {
-    setIsGoogleLogin(!isGoogleLogin); // Indicate Google login is in process
-    const result = await signIn('google', { callbackUrl: '/' });
+      const result = await res.json();
+      console.log('Credentials Login Result:', result);
+  
+      return result;
+    },
+    {
+      onSuccess: (res) => {
+        console.log('OnSuccess Response:', res);
+  
+        if (res && res.ok && !res.error) {
+        } else {
+          setError("الايميل او كلمة المرور غير صحيحه");
+          setShowModal(true);
+        }
+      },
+      onError: (err) => {
+        setError("حدث خطأ أثناء تسجيل الدخول");
+        console.log('OnSuccess Response:', err);
 
+        setShowModal(true);
+      }
+    }
+  );
+  
+  const handleLogin = (data: LoginvalType) => {
+    loginMutation.mutate(data);
+  };
+  
+  const handleGoogleLogin = async () => {
+    const res = await fetch("/api/auth/signin/google", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        redirect: false, 
+      }),
+    });
+  
+    const result = await res.json(); 
+    console.log('Google Login Result:', result);
+  
     if (result && !result.error) {
-      router.replace('/');
+      router.push('/')
     } else {
-      setError("Google login failed");
+      setError("حدث خطأ أثناء تسجيل الدخول");
       setShowModal(true);
     }
-
-    setIsGoogleLogin(false); // Reset Google login state
   };
-
-
   const closeModal = () => {
     setShowModal(false);
   };
+  let iconStyles = { color: "white", fontSize: "1.5em" };
 
   return (
 <div className="w-full min-h-screen bg-gray-100 flex items-center justify-center px-5 py-5 bg-black-100">
@@ -87,7 +109,7 @@ function Login() {
               </h1>
             </div>
             <div>
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleSubmit(handleLogin)}>
             <div className="flex -mx-3">
                 <div className="w-full px-3 mb-5">
                   <label htmlFor="email" className="text-xs font-semibold px-1">
@@ -99,8 +121,8 @@ function Login() {
                       type="email"
                       className="w-full -ml-10 pl-4 pr-3 py-2 rounded-lg border-2 border-black-200 outline-none focus:border-[#FFA842]"
                       placeholder="ali@gmail.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      {...register('email')}
+
                     />
                   </div>
                 </div>
@@ -118,24 +140,30 @@ function Login() {
                       type="password"
                       className="w-full -ml-10 pl-4 pr-3 py-2 rounded-lg border-2 border-black-200 outline-none focus:border-[#FFA842]"
                       placeholder="************"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      {...register('password')}
+
                     />
 
                   </div>
                   
                 </div>
-                
               </div>
 
               <div className="flex -mx-3">
                 <div className="w-full px-3 mb-5">
                   <button
                     className="block w-full max-w-xs mx-auto bg-[#9685CF] hover:bg-[#FFA842] focus:bg-[#FFA842] text-white rounded-lg px-3 py-3 font-semibold"
+                    type="submit" disabled={loginMutation.isLoading}
                   >
-                    تسجيل دخول
-                  </button>
-                  <div onClick={handleGoogleLogin}><FcGoogle /></div>
+          {loginMutation.isLoading ? 'يتم تسجيل الدخول.' : 'تسجيل الدخول'}
+          </button>
+                    <button className='flex justify-center gap-2  mt-5 w-27 mx-auto bg-[#9685CF] hover:bg-[#FFA842] focus:bg-[#FFA842] text-white rounded-lg px-3 py-3 font-semibold' type="button" onClick={handleGoogleLogin} disabled={isGoogleLogin}>
+                      ألتسجيل باتسخدام قوقل  <FcGoogle  style={iconStyles}/>
+                    {isGoogleLogin ? 'جاري تسجيل الدخول باستخدام قوقل' :``
+
+                    }
+
+                    </button>
                   
                   
                   <p className="text-center p-3 text-black">
@@ -160,7 +188,7 @@ function Login() {
       </div>
      
       {/* Modal for error handling */}
-      {showModal && (
+      {error && showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-5 rounded-lg shadow-lg text-center">
             <motion.div

@@ -6,10 +6,16 @@ import { Save, FileText, X } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { toast } from 'react-toastify';
+import { Task } from '@/types/Types';
+interface ScheduleModalProps {
+  taskList: Task[];
+  isOpen: boolean;
+  onClose: () => void;  }
 
-export default function ScheduleModal({ taskList, isOpen, onClose }) {
+export default function ScheduleModal({ taskList, isOpen, onClose }: ScheduleModalProps) {
+ 
 
-  const saveTasksToDatabase = async (scheduledTasks) => {
+  const saveTasksToDatabase = async (scheduledTasks: Task[]) => {
     try {
       const response = await fetch('/api/Tasks', {
         method: 'POST',
@@ -42,9 +48,9 @@ export default function ScheduleModal({ taskList, isOpen, onClose }) {
     doc.text('Schedule Details', 20, 20);
 
     const tableColumn = ["Address", "Deadline", "Best Time Departure", "Best Route", "Distance", "Duration", "Day"];
-    const tableRows = [];
+    const tableRows: string[][] =  [];
 
-    taskList.forEach(task => {
+    taskList.forEach((task: Task )=> {
       const taskData = [
         task.address,
         task.arrivalTime?.toLocaleString() || 'N/A',

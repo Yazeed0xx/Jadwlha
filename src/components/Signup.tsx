@@ -1,119 +1,45 @@
 "use client";
 import axios from "axios";
-
+import { FieldValues, useForm, FieldErrors } from 'react-hook-form';
 import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from 'next/image';
 import logo from "../../public/logo-jadw.png";
 
-import { User } from "@/types/Types";
-import { Router } from "next/router";
 import { useRouter } from "next/navigation";
-import { json } from "stream/consumers";
+import { Register, signup } from "@/types/Types";
+import {zodResolver} from "@hookform/resolvers/zod"
 
 function Signup() {
-  const router = useRouter()
-  const [user, setUser] = useState<User>({
-    firstname: "",
-    lastname: '',
-    email: '',
-    password: '',
-    phone: '',
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<Register>({
+    resolver: zodResolver(signup),
   });
 
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
-  // const ref = useRef<HTMLFormElement>(null);
+  
+
+ 
+
+  const onSubmit = async(data: Register) => {
+    await axios.post('/api/register', data)
 
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    setUser(prevUser => ({
-      ...prevUser,
-      [name]: value, 
-    }));
+    reset();
   };
 
-  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-   
-
-    // if (!user.firstname || !user.email || !user.lastname || !user.password || !user.phone) {
-    //     setError("All fields are required");
-    //     setShowModal(true);
-    //     return; 
-    // }
-
-    try {
-      const resUserExists = await axios.post(`/api/userExists`, {
-        email: user.email
-      }, {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-    
-      const { user2 } = resUserExists.data;
-    
-      if (user2) {
-
-      
-        
-        setError("User already exists");
-        setShowModal(true);
-        return;
-      }
-    
-    
-    
-
-
-
-        const res = await axios.post('/api/register', {
-          name: `${user.firstname} ${user.lastname}`, 
-          firstname: user.firstname,
-          lastname: user.lastname,
-          email: user.email,
-          password: user.password,
-          phone: user.phone
-      }, );
-
-        if (res.status === 200 || res.status === 201) {
-          await fetch("/api/emails", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: user.email,
-              firstname: user.firstname,
-            }),
-          });
-          const form = e.target as HTMLFormElement;
-          form.reset();
-          router.push('/login')
-          console.log("User registration successful.");
-        } else {
-          console.log("User registration failed.");
-        }
-      } catch (error) {
-        console.log("Error during registration: ", error);
-      }
-    }
-  const closeModal = () => {
-    setShowModal(false);
-  };
 
   return (
     <div className="w-full min-h-screen bg-gray-100 flex items-center justify-center px-5 py-5 bg-black-100">
       <div className="bg-white text-black-500 overflow-hidden w-[60vw] max-sm:w-full">
         <div className="md:flex w-full">
-          <div className="md:block w-[60vw] bg-[#9685CF] py-10 px-10 max-sm:w-full max-sm:py-1  ">
+          <div className="md:block w-[60vw] bg-[#9685CF] py-10 px-10 max-sm:w-full max-sm:py-1">
             <Link href="/">
-              <Image src={logo} alt="logo" className="mt-20 " />
+              <Image src={logo} alt="logo" className="mt-20" />
             </Link>
           </div>
           <div className="w-full py-10 px-5 md:px-10 max-sm:p-0">
@@ -122,33 +48,57 @@ function Signup() {
                 قم بإدخال معلوماتك للتسجيل
               </h1>
             </div>
-            <form onSubmit={handleSignup}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <div className="flex -mx-3">
                 <div className="w-1/2 px-3 mb-5">
                   <label htmlFor="firstname" className="text-xs font-semibold px-1">
                     الأسم الأول
                   </label>
                   <input
+                    {...register('firstname', {
+                      required: 'فضلا قم بادخال الاسم الاول',
+                      minLength: {
+                        value: 1,
+                        message: 'الرجاء قم بادخال اسم صالح',
+                      },
+                    })}
                     type="text"
-                    name="firstname" 
-                    className="w-full pl-4 pr-3 py-2 rounded-lg border-2 border-black-200 outline-none focus:border-[#FFA842]"
+                    name="firstname"
+                    className={`w-full pl-4 pr-3 py-2 rounded-lg border-2 ${
+                      errors.firstname ? 'border-red-500' : 'border-black-200'
+                    } outline-none focus:border-[#FFA842]`}
                     placeholder="Ali"
-                    value={user.firstname}
-                    onChange={handleChange}
                   />
+                  {errors.firstname && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.firstname.message}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2 px-3 mb-5">
                   <label htmlFor="lastname" className="text-xs font-semibold px-1">
                     الأسم الاخير
                   </label>
                   <input
+                    {...register('lastname', {
+                      required: 'فضلا قم بادخال الاسم الاخير',
+                      minLength: {
+                        value: 1,
+                        message: 'الرجاء قم بادخال اسم صالح',
+                      },
+                    })}
                     type="text"
-                    name="lastname" 
-                    className="w-full pl-4 pr-3 py-2 rounded-lg border-2 border-black-200 outline-none focus:border-[#FFA842]"
+                    name="lastname"
+                    className={`w-full pl-4 pr-3 py-2 rounded-lg border-2 ${
+                      errors.lastname ? 'border-red-500' : 'border-black-200'
+                    } outline-none focus:border-[#FFA842]`}
                     placeholder="Hakami"
-                    value={user.lastname}
-                    onChange={handleChange}
                   />
+                  {errors.lastname && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.lastname.message}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex -mx-3">
@@ -157,13 +107,23 @@ function Signup() {
                     الإيميل
                   </label>
                   <input
+                    {...register('email', {
+                      required: 'قم بادخال ايميل صالح',
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: 'قم بادخال ايميل صالح',
+                      },
+                    })}
                     type="email"
-                    name="email" 
-                    className="w-full pl-4 pr-3 py-2 rounded-lg border-2 border-black-200 outline-none focus:border-[#FFA842]"
+                    name="email"
+                    className={`w-full pl-4 pr-3 py-2 rounded-lg border-2 ${
+                      errors.email ? 'border-red-500' : 'border-black-200'
+                    } outline-none focus:border-[#FFA842]`}
                     placeholder="ali@gmail.com"
-                    value={user.email}
-                    onChange={handleChange}
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                  )}
                 </div>
               </div>
               <div className="flex -mx-3">
@@ -172,41 +132,55 @@ function Signup() {
                     كلمة المرور
                   </label>
                   <input
+                    {...register('password', {
+                      required: 'كلمة المرور مطلوبه',
+                      minLength: {
+                        value: 6,
+                        message: 'كلمة المرور يجب الا تقل عن ستة خانات',
+                      },
+                    })}
                     type="password"
-                    name="password" 
-                    className="w-full pl-4 pr-3 py-2 rounded-lg border-2 border-black-200 outline-none focus:border-[#FFA842]"
+                    name="password"
+                    className={`w-full pl-4 pr-3 py-2 rounded-lg border-2 ${
+                      errors.password ? 'border-red-500' : 'border-black-200'
+                    } outline-none focus:border-[#FFA842]`}
                     placeholder="************"
-                    value={user.password}
-                    onChange={handleChange}
                   />
+                  {errors.password && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.password.message}
+                    </p>
+                  )}
                 </div>
               </div>
+              {/* Phone field is commented out */}
+              {/* 
               <div className="flex -mx-3">
                 <div className="w-full px-3 mb-5">
                   <label htmlFor="phone" className="text-xs font-semibold px-1">
                     رقم الهاتف
                   </label>
                   <input
-                    type="tel"
-                    name="phone" 
+                    {...register('phone')}
+                    type="phone"
+                    name="phone"
                     className="w-full pl-4 pr-3 py-2 rounded-lg border-2 border-black-200 outline-none focus:border-[#FFA842]"
                     placeholder="123-456-7890"
-                    value={user.phone}
-                    onChange={handleChange}
                   />
                 </div>
               </div>
+              */}
               <div className="flex -mx-3">
                 <div className="w-full px-3 mb-5">
                   <button
-                  
+                    disabled={isSubmitting}
                     type="submit"
                     className="block w-full max-w-xs mx-auto bg-[#9685CF] hover:bg-[#FFA842] focus:bg-[#FFA842] text-white rounded-lg px-3 py-3 font-semibold"
                   >
                     تسجيل
                   </button>
                   <p className="text-center p-3 text-black">
-                    لديك حساب؟{" "}
+                    لديك حساب؟{' '}
                     <Link href="/login" className="text-[#9685CF] hover:underline">
                       قم بتسجيل الدخول
                     </Link>
@@ -223,7 +197,7 @@ function Signup() {
         </div>
       </div>
 
-      {showModal && (
+      {/* {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-5 rounded-lg shadow-lg text-center">
             <motion.div
@@ -234,12 +208,14 @@ function Signup() {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className={`w-16 h-16 mx-auto ${error ? 'text-red-500' : 'text-green-500'}`}
+                className={`w-16 h-16 mx-auto ${
+                  isError ? 'text-red-500' : 'text-green-500'
+                }`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                {error ? (
+                {isError ? (
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -256,7 +232,9 @@ function Signup() {
                 )}
               </svg>
             </motion.div>
-            <p className="mb-4 text-red-500">{error || "تم إنشاء الحساب بنجاح"}</p>
+            <p className={`mb-4 ${isError ? 'text-red-500' : 'text-green-500'}`}>
+              {modalMessage}
+            </p>
             <button
               onClick={closeModal}
               className="bg-[#9685CF] hover:bg-[#FFA842] text-white font-semibold px-4 py-2 rounded"
@@ -265,9 +243,9 @@ function Signup() {
             </button>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
-}
+};
 
 export default Signup;
